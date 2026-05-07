@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StreamHub v3</title>
+  <link rel="stylesheet" href="styles/main.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+<div id="app">
+
+  <!-- Title Bar -->
+  <header class="titlebar">
+    <div class="titlebar-logo">
+      <span class="logo-icon">◈</span>
+      <span class="logo-text">STREAM<strong>HUB</strong> <em>v3</em></span>
+    </div>
+    <div class="titlebar-center">
+      <div class="live-indicator" id="liveIndicator">
+        <span class="live-dot"></span>
+        <span id="liveLabel">OFFLINE</span>
+      </div>
+    </div>
+    <div class="titlebar-sound">
+      <button class="btn-sound" id="btnSound" onclick="toggleSound()" title="Toggle sound alerts">🔊</button>
+    </div>
+    <div class="titlebar-tabs">
+      <button class="tab-btn active" onclick="showTab('chat')" id="tab-chat">CHAT</button>
+      <button class="tab-btn" onclick="showTab('obs')" id="tab-obs">OBS</button>
+      <button class="tab-btn" onclick="showTab('ai')" id="tab-ai">AI</button>
+      <button class="tab-btn" onclick="showTab('donations')" id="tab-donations">DONATIONS</button>
+      <button class="tab-btn" onclick="showTab('automation')" id="tab-automation">AUTOMATION</button>
+      <button class="tab-btn" onclick="showTab('analytics')" id="tab-analytics">ANALYTICS</button>
+      <button class="tab-btn" onclick="showTab('deck')" id="tab-deck">DECK</button>
+    </div>
+  </header>
+
+  <!-- Layout -->
+  <div class="layout">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+
+      <!-- Platforms -->
+      <div class="sidebar-section">
+        <h3 class="section-label">PLATFORMS</h3>
+
+        <div class="platform-card" id="card-youtube">
+          <div class="platform-header">
+            <div class="platform-icon youtube">▶</div>
+            <div class="platform-info">
+              <span class="platform-name">YouTube</span>
+              <span class="platform-status" id="yt-status">Not connected</span>
+            </div>
+          </div>
+          <div class="platform-btns">
+            <button class="btn-auth" onclick="authPlatform('youtube')">Auth</button>
+            <button class="btn-connect" id="btn-yt-connect" onclick="connectPlatform('youtube')" disabled>Live</button>
+            <button class="btn-disconnect hidden" id="btn-yt-disconnect" onclick="disconnectPlatform('youtube')">✕</button>
+          </div>
+        </div>
+
+<div class="platform-card" id="card-tiktok">
+          <div class="platform-header">
+            <div class="platform-icon tiktok">♪</div>
+            <div class="platform-info">
+              <span class="platform-name">TikTok</span>
+              <span class="platform-status" id="tiktok-status">Set username in .env</span>
+            </div>
+          </div>
+          <div class="platform-btns">
+            <button class="btn-connect" id="btn-tiktok-connect" onclick="connectPlatform('tiktok')">Connect</button>
+            <button class="btn-disconnect hidden" id="btn-tiktok-disconnect" onclick="disconnectPlatform('tiktok')">✕</button>
+          </div>
+        </div>
+
+        <div class="platform-card" id="card-facebook">
+          <div class="platform-header">
+            <div class="platform-icon facebook">f</div>
+            <div class="platform-info">
+              <span class="platform-name">Facebook</span>
+              <span class="platform-status" id="fb-status">Not connected</span>
+            </div>
+          </div>
+          <div class="platform-btns">
+            <button class="btn-auth" onclick="authPlatform('facebook')">Auth</button>
+            <button class="btn-connect" id="btn-fb-connect" onclick="connectPlatform('facebook')" disabled>Live</button>
+            <button class="btn-disconnect hidden" id="btn-fb-disconnect" onclick="disconnectPlatform('facebook')">✕</button>
+          </div>
+        </div>
+
+        <div class="platform-card" id="card-twitter">
+          <div class="platform-header">
+            <div class="platform-icon twitter">𝕏</div>
+            <div class="platform-info">
+              <span class="platform-name">Twitter/X</span>
+              <span class="platform-status" id="twitter-status">Set token in .env</span>
+            </div>
+          </div>
+          <div class="platform-btns">
+            <button class="btn-connect" id="btn-twitter-connect" onclick="connectPlatform('twitter')">Monitor</button>
+            <button class="btn-disconnect hidden" id="btn-twitter-disconnect" onclick="disconnectPlatform('twitter')">✕</button>
+          </div>
+        </div>
+
+        <div class="platform-card" id="card-bluesky">
+          <div class="platform-header">
+            <div class="platform-icon bluesky">☁</div>
+            <div class="platform-info">
+              <span class="platform-name">Bluesky</span>
+              <span class="platform-status" id="bluesky-status">Set handle in .env</span>
+            </div>
+          </div>
+          <div class="platform-btns">
+            <button class="btn-connect" id="btn-bluesky-connect" onclick="connectPlatform('bluesky')">Connect</button>
+            <button class="btn-disconnect hidden" id="btn-bluesky-disconnect" onclick="disconnectPlatform('bluesky')">✕</button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Stats -->
+      <div class="sidebar-section">
+        <h3 class="section-label">LIVE STATS</h3>
+        <div class="stats-grid">
+          <div class="stat-box"><span class="stat-value" id="stat-viewers">—</span><span class="stat-label">Viewers</span></div>
+          <div class="stat-box"><span class="stat-value" id="stat-messages">0</span><span class="stat-label">Messages</span></div>
+          <div class="stat-box"><span class="stat-value" id="stat-donations">0</span><span class="stat-label">Donations</span></div>
+          <div class="stat-box"><span class="stat-value" id="stat-uptime">00:00</span><span class="stat-label">Uptime</span></div>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="sidebar-section">
+        <h3 class="section-label">FILTER CHAT</h3>
+        <div class="filter-pills">
+          <button class="pill active" onclick="filterChat('all')" id="filter-all">All</button>
+          <button class="pill" onclick="filterChat('youtube')" id="filter-youtube">YT</button>
+<button class="pill" onclick="filterChat('tiktok')" id="filter-tiktok">TikTok</button>
+          <button class="pill" onclick="filterChat('facebook')" id="filter-facebook">FB</button>
+          <button class="pill" onclick="filterChat('twitter')" id="filter-twitter">X</button>
+          <button class="pill" onclick="filterChat('bluesky')" id="filter-bluesky">Sky</button>
+        </div>
+      </div>
+
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+
+      <!-- CHAT TAB -->
+      <div class="tab-content active" id="tab-content-chat">
+        <div class="chat-feed" id="chatFeed">
+          <div class="chat-empty"><div class="empty-icon">◈</div><p>Connect a platform to see chat</p></div>
+        </div>
+        <div class="chat-input-row">
+          <select class="platform-select" id="sendToPlatform">
+            <option value="youtube">YouTube</option>
+  <option value="bluesky">Bluesky</option>
+          </select>
+          <input type="text" id="chatInput" placeholder="Type a message..." />
+          <button class="btn-ai-reply" onclick="aiReply()" title="AI-generate a reply">✦ AI</button>
+          <button class="btn-broadcast" onclick="broadcastMessage()" title="Send to ALL connected platforms">📢</button>
+          <button class="btn-send" onclick="sendMessage()">Send</button>
+        </div>
+      </div>
+
+      <!-- OBS TAB -->
+      <div class="tab-content" id="tab-content-obs">
+        <div class="obs-layout">
+
+          <div class="obs-header">
+            <div class="obs-status-row">
+              <div class="obs-indicator" id="obsIndicator">
+                <span class="obs-dot"></span>
+                <span id="obsLabel">OBS Disconnected</span>
+              </div>
+              <div class="obs-stream-rec">
+                <div class="stream-badge" id="obsStreamBadge">⬤ OFF AIR</div>
+                <div class="rec-badge" id="obsRecBadge">⏺ NOT REC</div>
+              </div>
+            </div>
+            <div class="obs-connect-row">
+              <button class="btn-obs-connect" id="btnObsConnect" onclick="connectOBS()">Connect to OBS</button>
+              <button class="btn-obs-disconnect hidden" id="btnObsDisconnect" onclick="disconnectOBS()">Disconnect</button>
+            </div>
+          </div>
+
+          <div class="obs-panel">
+            <h3 class="obs-panel-title">SCENES</h3>
+            <div class="scenes-grid" id="scenesGrid">
+              <div class="obs-empty">Connect OBS to see scenes</div>
+            </div>
+          </div>
+
+          <div class="obs-panel">
+            <h3 class="obs-panel-title">AUDIO SOURCES</h3>
+            <div class="audio-list" id="audioList">
+              <div class="obs-empty">Connect OBS to see audio sources</div>
+            </div>
+          </div>
+
+          <div class="obs-panel">
+            <h3 class="obs-panel-title">RECORDING</h3>
+            <div class="rec-controls">
+              <button class="btn-rec" id="btnStartRec" onclick="startRecording()">⏺ Start Recording</button>
+              <button class="btn-rec stop hidden" id="btnStopRec" onclick="stopRecording()">⏹ Stop Recording</button>
+            </div>
+          </div>
+
+          <div class="obs-panel">
+            <h3 class="obs-panel-title">SOURCES IN CURRENT SCENE</h3>
+            <div class="sources-list" id="sourcesList">
+              <div class="obs-empty">Select a scene to see sources</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- AI TAB -->
+      <div class="tab-content" id="tab-content-ai">
+        <div class="ai-layout">
+
+          <div class="ai-header">
+            <div class="ai-status" id="aiStatus">
+              <span class="ai-dot"></span>
+              <span id="aiLabel">AI Ready</span>
+            </div>
+          </div>
+
+          <div class="ai-panel">
+            <h3 class="ai-panel-title">CUSTOM AI PROMPT</h3>
+            <div class="ai-input-group">
+              <textarea id="aiPromptInput" placeholder="Ask the AI anything about your stream, chat, or audience..." rows="3"></textarea>
+              <button class="btn-ai" onclick="sendAIPrompt()">✦ Generate</button>
+            </div>
+            <div class="ai-response" id="aiResponse">
+              <div class="chat-empty"><p>AI responses appear here</p></div>
+            </div>
+          </div>
+
+          <div class="ai-panel">
+            <h3 class="ai-panel-title">✂ CLIP TITLE GENERATOR</h3>
+            <div class="ai-input-group">
+              <input type="text" id="clipDescription" placeholder="Describe the clip moment..." />
+              <button class="btn-ai" onclick="generateClipTitle()">Generate Titles</button>
+            </div>
+            <div class="ai-response" id="clipTitleResponse"></div>
+          </div>
+
+          <div class="ai-panel">
+            <h3 class="ai-panel-title">✦ STREAM HIGHLIGHTS SUMMARY</h3>
+            <div class="ai-input-group">
+              <button class="btn-ai" style="width:100%" onclick="generateStreamSummary()">✦ Generate Stream Summary</button>
+            </div>
+            <div class="ai-response" id="streamSummaryResponse"></div>
+          </div>
+
+          <div class="ai-panel">
+            <h3 class="ai-panel-title">AUTO AI MESSAGES</h3>
+            <div class="ai-log" id="aiLog">
+              <div class="chat-empty"><p>AI-generated messages appear here</p></div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- DONATIONS TAB -->
+      <div class="tab-content" id="tab-content-donations">
+        <div class="donations-header">
+          <span class="total-label">Total Donations</span>
+          <span class="total-value" id="totalDonations">0</span>
+        </div>
+        <div class="donations-feed" id="donationsFeed">
+          <div class="chat-empty"><div class="empty-icon">💎</div><p>Donations & gifts appear here</p></div>
+        </div>
+      </div>
+
+      <!-- AUTOMATION TAB -->
+      <div class="tab-content" id="tab-content-automation">
+        <div class="automation-header">
+          <h2>Automation Rules</h2>
+          <p>Rules that fire automatically based on stream events</p>
+        </div>
+        <div class="rules-list" id="rulesList"><div class="chat-empty"><p>Loading rules...</p></div></div>
+        <div class="automation-log">
+          <h3 class="section-label">ACTIVITY LOG</h3>
+          <div class="log-feed" id="logFeed"></div>
+        </div>
+      </div>
+
+      <!-- ANALYTICS TAB -->
+      <div class="tab-content" id="tab-content-analytics">
+        <div class="analytics-layout">
+
+          <!-- Stat Cards -->
+          <div class="an-stat-cards">
+            <div class="an-stat-card">
+              <div class="an-stat-value" id="an-duration">00:00:00</div>
+              <div class="an-stat-label">Session Duration</div>
+            </div>
+            <div class="an-stat-card">
+              <div class="an-stat-value" id="an-total-msgs">0</div>
+              <div class="an-stat-label">Total Messages</div>
+            </div>
+            <div class="an-stat-card">
+              <div class="an-stat-value" id="an-avg-rate">0</div>
+              <div class="an-stat-label">Avg Msgs / 30s</div>
+            </div>
+            <div class="an-stat-card accent">
+              <div class="an-stat-value" id="an-clip-count">0</div>
+              <div class="an-stat-label">Clip Moments</div>
+            </div>
+          </div>
+
+          <!-- Message Rate Chart -->
+          <div class="an-panel">
+            <div class="an-panel-title">MESSAGE ACTIVITY (30s intervals)</div>
+            <svg id="msgRateChart" class="an-chart"></svg>
+          </div>
+
+          <!-- Top Chatters + Platform Breakdown -->
+          <div class="an-row">
+            <div class="an-panel">
+              <div class="an-panel-title">TOP CHATTERS</div>
+              <div id="topChatters" class="an-list">
+                <div class="obs-empty">No messages yet</div>
+              </div>
+            </div>
+            <div class="an-panel">
+              <div class="an-panel-title">PLATFORM BREAKDOWN</div>
+              <div id="platformBreakdown" class="an-list">
+                <div class="obs-empty">No messages yet</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Clip Moments -->
+          <div class="an-panel">
+            <div class="an-panel-title">✂ CLIP MOMENTS DETECTED</div>
+            <div id="clipMomentsList" class="clip-list">
+              <div class="obs-empty">No clip moments yet — chat spikes will appear here</div>
+            </div>
+          </div>
+
+          <!-- YouTube Title Sync -->
+          <div class="an-panel">
+            <div class="an-panel-title">STREAM TITLE SYNC (YouTube)</div>
+            <div class="title-sync-row">
+              <input type="text" id="titleSyncInput" placeholder="New stream title..." />
+              <button class="btn-title-sync" onclick="syncTitle()">Sync to YouTube</button>
+            </div>
+            <div class="title-sync-status" id="titleSyncStatus"></div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- DECK TAB -->
+      <div class="tab-content" id="tab-content-deck">
+        <div class="deck-layout">
+
+          <div class="deck-header">
+            <div class="deck-title-row">
+              <span class="deck-title">STREAM DECK</span>
+              <span class="deck-hint">Click a button to trigger · Hover + ✎ to edit</span>
+            </div>
+          </div>
+
+          <div class="deck-grid" id="deckGrid">
+            <!-- Buttons injected by JS -->
+          </div>
+
+          <!-- Saved Clips -->
+          <div class="deck-clips-panel">
+            <div class="deck-panel-title">✂ SAVED CLIPS <span id="clipCountBadge" class="clip-count-badge">0</span></div>
+            <div id="savedClipsList" class="saved-clips-list">
+              <div class="obs-empty">No clips saved yet — mark a moment with the ✂ button</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Deck Edit Modal -->
+  <div class="deck-modal hidden" id="deckEditModal">
+    <div class="deck-modal-card">
+      <div class="deck-modal-title">Edit Button</div>
+      <div class="deck-modal-row">
+        <input type="text" id="editIcon" placeholder="Icon" maxlength="4" />
+        <input type="text" id="editLabel" placeholder="Label" maxlength="22" />
+      </div>
+      <select id="editAction">
+        <option value="none">— Empty —</option>
+        <option value="broadcast">📢 Broadcast Message</option>
+        <option value="obs-scene">🎥 Switch OBS Scene</option>
+        <option value="obs-mute">🎙 Toggle Mute Source</option>
+        <option value="obs-record">⏺ Toggle Recording</option>
+        <option value="clip">✂ Mark Clip</option>
+        <option value="alert">⚡ Show Alert</option>
+        <option value="ai-summary">✦ AI Summary</option>
+      </select>
+      <input type="text" id="editParam" placeholder="Message / Scene name / Source name" />
+      <div class="deck-modal-btns">
+        <button class="deck-modal-save" onclick="saveDeckEdit()">Save</button>
+        <button class="deck-modal-cancel" onclick="closeDeckEdit()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Alert Overlay -->
+  <div class="alert-overlay hidden" id="alertOverlay">
+    <div class="alert-card">
+      <div class="alert-platform" id="alertPlatform"></div>
+      <div class="alert-type" id="alertType"></div>
+      <div class="alert-author" id="alertAuthor"></div>
+      <div class="alert-message" id="alertMessage"></div>
+    </div>
+  </div>
+
+</div>
+<script src="https://cdn.socket.io/4.6.0/socket.io.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
