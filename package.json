@@ -2,6 +2,7 @@
   "name": "streamhub",
   "version": "5.0.0",
   "description": "Unified streaming command center — YouTube, TikTok, Facebook, Twitter/X, Bluesky, OBS, AI & more",
+  "author": "Ricardo",
   "main": "src/main/index.js",
   "scripts": {
     "start": "electron .",
@@ -9,7 +10,9 @@
     "build": "electron-builder",
     "build:win": "electron-builder --win",
     "build:mac": "electron-builder --mac",
-    "build:linux": "electron-builder --linux"
+    "build:linux": "electron-builder --linux",
+    "package": "electron-packager . StreamHub --platform=win32 --arch=x64 --out=dist --overwrite --asar --ignore=\"^/dist|^/.git|^/\\.env$\" --app-version=5.0.0",
+    "package:mac": "electron-packager . StreamHub --platform=darwin --arch=x64 --out=dist --overwrite --asar --ignore=\"^/dist|^/.git|^/\\.env$\" --app-version=5.0.0"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.20.0",
@@ -28,7 +31,8 @@
   },
   "devDependencies": {
     "electron": "^27.0.0",
-    "electron-builder": "^24.6.4"
+    "electron-builder": "^24.6.4",
+    "electron-packager": "^17.1.2"
   },
   "build": {
     "appId": "com.streamhub.app",
@@ -50,15 +54,15 @@
       "target": [
         { "target": "nsis", "arch": ["x64"] },
         { "target": "portable", "arch": ["x64"] }
-      ]
+      ],
+      "sign": null
     },
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "StreamHub",
-      "installerHeaderIcon": null
+      "shortcutName": "StreamHub"
     },
     "mac": {
       "target": "dmg",
