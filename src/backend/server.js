@@ -100,25 +100,85 @@ io.on('connection', (socket) => {
 app.get('/health', (req, res) => res.json({ status: 'ok', version: '3.0.0' }));
 
 // Auth
-app.get('/auth/youtube', (req, res) => res.redirect(platforms.youtube.getAuthUrl()));
+app.get('/auth/youtube', (req, res) => {
+  if (!process.env.YOUTUBE_CLIENT_ID || !process.env.YOUTUBE_CLIENT_SECRET) {
+    return res.status(400).send(missingCredsPage('YouTube', [
+      'YOUTUBE_CLIENT_ID',
+      'YOUTUBE_CLIENT_SECRET'
+    ], 'console.cloud.google.com → APIs & Services → Credentials → OAuth 2.0 Client ID'));
+  }
+  res.redirect(platforms.youtube.getAuthUrl());
+});
 app.get('/auth/youtube/callback', async (req, res) => {
   try {
     await platforms.youtube.handleCallback(req.query.code);
-    res.send('<script>window.close();</script><p>YouTube connected!</p>');
-  } catch (err) { res.status(500).send('YouTube auth failed: ' + err.message); }
+    res.send(successPage('YouTube'));
+  } catch (err) { res.status(500).send(errorPage('YouTube', err.message)); }
 });
 
 app.get('/auth/facebook', (req, res) => {
+  if (!process.env.FACEBOOK_APP_ID || !process.env.FACEBOOK_APP_SECRET) {
+    return res.status(400).send(missingCredsPage('Facebook', [
+      'FACEBOOK_APP_ID',
+      'FACEBOOK_APP_SECRET'
+    ], 'developers.facebook.com → Your App → Settings → Basic'));
+  }
   const url = platforms.facebook.getAuthUrl();
-  if (!url) return res.status(400).send('Set FACEBOOK_APP_ID in .env');
+  if (!url) return res.status(400).send(missingCredsPage('Facebook', ['FACEBOOK_APP_ID'], 'developers.facebook.com'));
   res.redirect(url);
 });
 app.get('/auth/facebook/callback', async (req, res) => {
   try {
     await platforms.facebook.handleCallback(req.query.code);
-    res.send('<script>window.close();</script><p>Facebook connected!</p>');
-  } catch (err) { res.status(500).send('Facebook auth failed: ' + err.message); }
+    res.send(successPage('Facebook'));
+  } catch (err) { res.status(500).send(errorPage('Facebook', err.message)); }
 });
+
+// ---- Auth page helpers ----
+function missingCredsPage(platform, keys, where) {
+  return `<!DOCTYPE html><html><head><style>
+    body{font-family:monospace;background:#08080e;color:#e8e8f0;display:flex;align-items:center;justify-content:center;height:100vh;margin:0}
+    .card{background:#0f0f1a;border:1px solid #2a2a42;border-radius:10px;padding:30px 36px;max-width:480px}
+    h2{color:#ff4444;margin:0 0 12px}h3{color:#00ff88;margin:16px 0 6px;font-size:12px;letter-spacing:.1em}
+    code{background:#1a1a2e;padding:3px 8px;border-radius:4px;color:#00ff88;display:block;margin:4px 0}
+    p{color:#6b6b8a;font-size:12px;margin:4px 0}a{color:#00ff88}
+    button{margin-top:16px;background:#00ff88;border:none;padding:8px 18px;border-radius:6px;font-weight:700;cursor:pointer}
+  </style></head><body><div class="card">
+    <h2>⚠ ${platform} Not Configured</h2>
+    <p>Add these to your <code style="display:inline">.env</code> file:</p>
+    <h3>REQUIRED KEYS</h3>
+    ${keys.map(k => `<code>${k}=your_value_here</code>`).join('')}
+    <h3>WHERE TO GET THEM</h3>
+    <p>${where}</p>
+    <p style="margin-top:12px">Then restart StreamHub and try again.</p>
+    <button onclick="window.close()">Close</button>
+  </div></body></html>`;
+}
+
+function successPage(platform) {
+  return `<!DOCTYPE html><html><head><style>
+    body{font-family:monospace;background:#08080e;color:#e8e8f0;display:flex;align-items:center;justify-content:center;height:100vh;margin:0}
+    .card{background:#0f0f1a;border:1px solid #00ff88;border-radius:10px;padding:30px 36px;text-align:center}
+    h2{color:#00ff88}p{color:#6b6b8a;font-size:12px}
+  </style></head><body><div class="card">
+    <h2>✓ ${platform} Connected!</h2>
+    <p>You can close this window.</p>
+    <script>setTimeout(()=>window.close(),1500)</script>
+  </div></body></html>`;
+}
+
+function errorPage(platform, msg) {
+  return `<!DOCTYPE html><html><head><style>
+    body{font-family:monospace;background:#08080e;color:#e8e8f0;display:flex;align-items:center;justify-content:center;height:100vh;margin:0}
+    .card{background:#0f0f1a;border:1px solid #ff4444;border-radius:10px;padding:30px 36px;max-width:480px}
+    h2{color:#ff4444}code{background:#1a1a2e;padding:6px 10px;border-radius:4px;color:#ff8888;display:block;margin-top:8px;font-size:11px}
+    button{margin-top:16px;background:transparent;border:1px solid #ff4444;padding:6px 14px;border-radius:6px;color:#ff4444;cursor:pointer}
+  </style></head><body><div class="card">
+    <h2>✕ ${platform} Auth Failed</h2>
+    <code>${msg}</code>
+    <button onclick="window.close()">Close</button>
+  </div></body></html>`;
+}
 
 // Platform status & control
 app.get('/api/status', (req, res) => {
@@ -130,6 +190,18 @@ app.get('/api/status', (req, res) => {
 app.post('/api/platform/:name/connect', async (req, res) => {
   const p = platforms[req.params.name];
   if (!p) return res.status(404).json({ error: 'Platform not found' });
+
+  // Friendly missing-credential checks before attempting connect
+  const name = req.params.name;
+  const missing = {
+    youtube:  (!process.env.YOUTUBE_CLIENT_ID || !process.env.YOUTUBE_CLIENT_SECRET) && 'Click Auth first — add YOUTUBE_CLIENT_ID & YOUTUBE_CLIENT_SECRET to .env',
+    tiktok:   !process.env.TIKTOK_USERNAME  && 'Add TIKTOK_USERNAME to .env (no @ symbol)',
+    facebook: !process.env.FACEBOOK_PAGE_ACCESS_TOKEN && 'Add FACEBOOK_PAGE_ACCESS_TOKEN & FACEBOOK_PAGE_ID to .env',
+    twitter:  !process.env.TWITTER_BEARER_TOKEN  && 'Add TWITTER_BEARER_TOKEN to .env',
+    bluesky:  (!process.env.BLUESKY_HANDLE || !process.env.BLUESKY_APP_PASSWORD) && 'Add BLUESKY_HANDLE & BLUESKY_APP_PASSWORD to .env',
+  };
+  if (missing[name]) return res.status(400).json({ error: missing[name] });
+
   try { await p.connect(); res.json({ success: true }); }
   catch (err) { res.status(500).json({ error: err.message }); }
 });

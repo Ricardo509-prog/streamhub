@@ -1,10 +1,9 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
-// Expose safe APIs to the renderer process
 contextBridge.exposeInMainWorld('electronAPI', {
   openExternal: (url) => ipcRenderer.send('open-external', url),
-  onUpdate: (callback) => ipcRenderer.on('update', callback)
+  minimize: () => ipcRenderer.send('window:minimize'),
+  maximize: () => ipcRenderer.send('window:maximize'),
+  close: () => ipcRenderer.send('window:close'),
+  onMaximizeChange: (cb) => ipcRenderer.on('window:maximized', (_, v) => cb(v))
 });
-
-// Expose backend URL
-contextBridge.exposeInMainWorld('BACKEND_URL', 'http://localhost:3000');

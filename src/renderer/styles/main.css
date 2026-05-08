@@ -48,7 +48,7 @@ body {
   background: var(--bg-panel);
   border-bottom: 1px solid var(--border);
   display: grid;
-  grid-template-columns: 200px 1fr auto auto;
+  grid-template-columns: 200px 1fr auto auto auto;
   align-items: center;
   padding: 0 16px;
   gap: 12px;
@@ -402,6 +402,20 @@ body {
 .alert-type { font-size: 16px; font-weight: 800; }
 .alert-author { font-size: 13px; color: var(--accent); margin-top: 3px; }
 .alert-message { font-size: 11px; color: var(--text-secondary); margin-top: 3px; }
+
+/* ---- Window Controls ---- */
+.window-controls {
+  display: flex; align-items: center; gap: 1px;
+  -webkit-app-region: no-drag; margin-left: 8px;
+}
+.wc-btn {
+  width: 32px; height: 32px; border: none; background: transparent;
+  color: var(--text-secondary); font-size: 13px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s, color 0.15s; border-radius: 4px;
+}
+.wc-btn:hover { color: var(--text-primary); background: var(--bg-hover); }
+.wc-btn.close:hover { background: #e81123; color: #fff; }
 
 /* ---- Sound Toggle ---- */
 .titlebar-sound { display: flex; align-items: center; -webkit-app-region: no-drag; }

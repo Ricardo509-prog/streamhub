@@ -18,6 +18,12 @@ let lastAITargetMessage = null;
 
 // ---- Socket Events ----
 
+// Update maximize button icon when window state changes
+window.electronAPI?.onMaximizeChange((isMaximized) => {
+  const btn = document.getElementById('wcMaximize');
+  if (btn) btn.innerHTML = isMaximized ? '&#10697;' : '&#9633;';
+});
+
 socket.on('connect', () => {
   console.log('[StreamHub v3] Connected');
   loadAutomationRules();

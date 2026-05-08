@@ -52,3 +52,20 @@ app.on('activate', () => {
 ipcMain.on('open-external', (event, url) => {
   shell.openExternal(url);
 });
+
+ipcMain.on('window:minimize', () => mainWindow?.minimize());
+ipcMain.on('window:maximize', () => {
+  if (!mainWindow) return;
+  if (mainWindow.isMaximized()) {
+    mainWindow.unmaximize();
+  } else {
+    mainWindow.maximize();
+  }
+});
+ipcMain.on('window:close', () => mainWindow?.close());
+
+// Notify renderer when maximize state changes so the button can update
+app.on('browser-window-created', (_, win) => {
+  win.on('maximize', () => win.webContents.send('window:maximized', true));
+  win.on('unmaximize', () => win.webContents.send('window:maximized', false));
+});

@@ -23,6 +23,11 @@
         <span id="liveLabel">OFFLINE</span>
       </div>
     </div>
+    <div class="window-controls">
+      <button class="wc-btn minimize" onclick="window.electronAPI?.minimize()" title="Minimize">&#8211;</button>
+      <button class="wc-btn maximize" id="wcMaximize" onclick="window.electronAPI?.maximize()" title="Maximize">&#9633;</button>
+      <button class="wc-btn close" onclick="window.electronAPI?.close()" title="Close">&#10005;</button>
+    </div>
     <div class="titlebar-sound">
       <button class="btn-sound" id="btnSound" onclick="toggleSound()" title="Toggle sound alerts">🔊</button>
     </div>
